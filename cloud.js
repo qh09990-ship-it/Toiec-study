@@ -10,7 +10,8 @@
  const say=(title,detail)=>{if(status)status.textContent=title;if(message)message.textContent=detail};
  const signedIn=(yes)=>{login.classList.toggle("hidden",yes);register.classList.toggle("hidden",yes);logout.classList.toggle("hidden",!yes);email.classList.toggle("hidden",yes);password.classList.toggle("hidden",yes)};
  if(!cfg.url||!cfg.anonKey||!window.supabase){
-   say("Chưa kết nối tài khoản","Tiến độ đang lưu trên trình duyệt này. Tạo dự án Supabase Free và thêm Project URL + anon key vào config.js để bật đồng bộ.");
+   [email,password,login,register,logout].forEach(el=>{if(el)el.disabled=true});
+   say("Chưa kết nối tài khoản","Tiến độ đang lưu trên trình duyệt này. Sau khi cấu hình Supabase Free, phần đăng nhập và đồng bộ sẽ hoạt động.");
    return;
  }
  const client=window.supabase.createClient(cfg.url,cfg.anonKey);
