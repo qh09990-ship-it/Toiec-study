@@ -14,7 +14,7 @@ const QUESTIONS = {
  {part:"Part 2 · Hỏi đáp ngắn",prompt:"“Why was the delivery delayed?”",options:["A. By express courier.","B. Because of bad weather.","C. Tomorrow morning."],answer:1,explanation:"Why hỏi lý do. Because of bad weather nêu nguyên nhân giao hàng chậm."}
  ]
 };
-const DEFAULT_WORDS=[{en:"appointment",vi:"cuộc hẹn"},{en:"available",vi:"có sẵn; rảnh"},{en:"deadline",vi:"hạn chót"},{en:"maintenance",vi:"bảo trì"},{en:"applicant",vi:"người ứng tuyển"}];
+const DEFAULT_WORDS=[];
 const KEY="toeicStudy_v1";
 let data=loadData(),currentQuestions=[],currentIndex=0,selected=null,answered=false,sessionStart=0,sessionCorrect=0,currentType="reading";
 function loadData(){try{return JSON.parse(localStorage.getItem(KEY))||{minutes:0,questions:0,correct:0,words:DEFAULT_WORDS,sessions:[]}}catch{return {minutes:0,questions:0,correct:0,words:DEFAULT_WORDS,sessions:[]}}}
