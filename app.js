@@ -7,7 +7,7 @@ const QUESTIONS = {
  {part:"Part 5 · Từ vựng",prompt:"All applicants must provide a valid form of _____ before the interview.",options:["A. identify","B. identity","C. identification","D. identifiable"],answer:2,explanation:"Sau form of cần danh từ. Identification nghĩa là giấy tờ hoặc hành động xác minh danh tính."}
  ],
  listening:[
- {part:"Part 2 · Hỏi đáp ngắn",prompt:"Câu hỏi mô phỏng: “When will the quarterly meeting begin?”",options:["A. In the main conference room.","B. At 2:30 this afternoon.","C. The quarterly report."],answer:1,explanation:"When hỏi thời gian. “At 2:30 this afternoon” là câu trả lời phù hợp. Bài mẫu hiện dùng câu chữ thay cho audio ghi âm."},
+ {part:"Part 2 · Hỏi đáp ngắn",prompt:"When will the quarterly meeting begin?",options:["A. In the main conference room.","B. At 2:30 this afternoon.","C. The quarterly report."],answer:1,explanation:"When hỏi thời gian. “At 2:30 this afternoon” là câu trả lời phù hợp. Bài mẫu hiện dùng câu chữ thay cho audio ghi âm."},
  {part:"Part 2 · Hỏi đáp ngắn",prompt:"“Where should I leave these documents?”",options:["A. On Ms. Lee’s desk.","B. They were documented.","C. At three o’clock."],answer:0,explanation:"Where hỏi địa điểm. “On Ms. Lee’s desk” trả lời đúng vị trí."},
  {part:"Part 2 · Hỏi đáp ngắn",prompt:"“Has the client confirmed the appointment?”",options:["A. The appointment book is blue.","B. Yes, she called this morning.","C. At the client’s office."],answer:1,explanation:"Câu hỏi Has…confirmed? hỏi việc đã được xác nhận chưa. Đáp án B trả lời Yes và bổ sung thời điểm."},
  {part:"Part 2 · Hỏi đáp ngắn",prompt:"“Who is responsible for preparing the sales report?”",options:["A. The sales department is.","B. It was sold yesterday.","C. About twenty pages."],answer:0,explanation:"Who hỏi người hoặc bộ phận chịu trách nhiệm. The sales department là chủ thể phù hợp."},
@@ -16,7 +16,7 @@ const QUESTIONS = {
 };
 const DEFAULT_WORDS=[{en:"appointment",vi:"cuộc hẹn"},{en:"available",vi:"có sẵn; rảnh"},{en:"deadline",vi:"hạn chót"},{en:"maintenance",vi:"bảo trì"},{en:"applicant",vi:"người ứng tuyển"}];
 const KEY="toeicStudy_v1";
-let data=loadData(),currentQuestions=[],currentIndex=0,selected=null,answered=false,sessionStart=0,sessionCorrect=0;
+let data=loadData(),currentQuestions=[],currentIndex=0,selected=null,answered=false,sessionStart=0,sessionCorrect=0,currentType="reading";
 function loadData(){try{return JSON.parse(localStorage.getItem(KEY))||{minutes:0,questions:0,correct:0,words:DEFAULT_WORDS,sessions:[]}}catch{return {minutes:0,questions:0,correct:0,words:DEFAULT_WORDS,sessions:[]}}}
 function save(){localStorage.setItem(KEY,JSON.stringify(data));renderStats()}
 function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=value}
@@ -36,11 +36,11 @@ function setView(name){
 document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
 document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.go)));
 document.querySelectorAll("[data-start]").forEach(b=>b.addEventListener("click",()=>{const t=b.dataset.start;if(t==="vocabulary"){setView("vocabulary");return}setView("practice");startQuiz(t)}));
-function startQuiz(type){currentQuestions=QUESTIONS[type].map(q=>({...q}));currentIndex=0;selected=null;answered=false;sessionStart=Date.now();sessionCorrect=0;document.getElementById("quiz").classList.remove("hidden");renderQuestion();document.getElementById("quiz").scrollIntoView({behavior:"smooth",block:"start"})}
+function startQuiz(type){currentType=type;currentQuestions=QUESTIONS[type].map(q=>({...q}));currentIndex=0;selected=null;answered=false;sessionStart=Date.now();sessionCorrect=0;document.getElementById("quiz").classList.remove("hidden");renderQuestion();document.getElementById("quiz").scrollIntoView({behavior:"smooth",block:"start"})}
 function renderQuestion(){
  const q=currentQuestions[currentIndex],box=document.getElementById("quiz");box.innerHTML="";
  const meta=document.createElement("div");meta.className="quiz-meta";meta.innerHTML="<span>"+q.part+"</span><span>Câu "+(currentIndex+1)+" / "+currentQuestions.length+"</span>";box.append(meta);
- const heading=document.createElement("h3");heading.textContent=q.prompt;box.append(heading);
+ const heading=document.createElement("h3");heading.textContent=q.prompt;box.append(heading);if(currentType==="listening"){const play=document.createElement("button");play.className="outline-btn";play.textContent="▶ Nghe câu hỏi tiếng Anh";play.addEventListener("click",()=>{if(!("speechSynthesis" in window)){alert("Trình duyệt này chưa hỗ trợ đọc văn bản.");return}window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(q.prompt);utterance.lang="en-US";utterance.rate=0.88;window.speechSynthesis.speak(utterance)});box.append(play)}
  const answers=document.createElement("div");answers.className="answers";
  q.options.forEach((a,i)=>{const btn=document.createElement("button");btn.className="answer";btn.textContent=a;if(selected===i)btn.classList.add("selected");if(answered&&i===q.answer)btn.classList.add("correct");if(answered&&selected===i&&i!==q.answer)btn.classList.add("wrong");btn.disabled=answered;btn.addEventListener("click",()=>{selected=i;renderQuestion()});answers.append(btn)});box.append(answers);
  if(answered){const feedback=document.createElement("div");feedback.className="quiz-feedback";feedback.style.background=selected===q.answer?"#f0faf5":"#fff5f5";feedback.textContent=(selected===q.answer?"Chính xác! ":"Chưa đúng. Đáp án là "+q.options[q.answer]+". ")+q.explanation;box.append(feedback)}
@@ -50,11 +50,12 @@ function renderQuestion(){
 }
 function finishQuiz(){
  const elapsed=Math.max(1,Math.round((Date.now()-sessionStart)/60000));data.minutes+=elapsed;data.sessions.unshift({date:new Date().toLocaleDateString("vi-VN"),minutes:elapsed,correct:sessionCorrect,total:currentQuestions.length});data.sessions=data.sessions.slice(0,30);save();
- const box=document.getElementById("quiz");box.innerHTML="<div class='quiz-meta'><span>HOÀN THÀNH BÀI LUYỆN</span><span>✦</span></div><h3>Bạn đã hoàn thành bài luyện tập!</h3><div class='quiz-prompt'><b>"+sessionCorrect+" / "+currentQuestions.length+" câu đúng</b><br>Hãy xem lại phần giải thích để ghi nhớ kiến thức lâu hơn.</div><button class='primary-btn' id='again'>Luyện lại bài đọc →</button>";document.getElementById("again").addEventListener("click",()=>startQuiz("reading"));
+ const box=document.getElementById("quiz");box.innerHTML="<div class='quiz-meta'><span>HOÀN THÀNH BÀI LUYỆN</span><span>✦</span></div><h3>Bạn đã hoàn thành bài luyện tập!</h3><div class='quiz-prompt'><b>"+sessionCorrect+" / "+currentQuestions.length+" câu đúng</b><br>Hãy xem lại phần giải thích để ghi nhớ kiến thức lâu hơn.</div><button class='primary-btn' id='again'>Luyện lại bài đọc →</button>";document.getElementById("again").addEventListener("click",()=>startQuiz(currentType));
 }
 document.getElementById("word-form").addEventListener("submit",e=>{e.preventDefault();const en=document.getElementById("word-en").value.trim(),vi=document.getElementById("word-vi").value.trim();if(!en||!vi)return;data.words.unshift({en,vi});save();e.target.reset()});
 function renderWords(){const list=document.getElementById("word-list");if(!list)return;list.innerHTML="";if(!data.words.length){list.innerHTML="<p class='muted'>Chưa có từ vựng. Hãy thêm từ đầu tiên nhé.</p>";return}data.words.forEach((w,i)=>{const row=document.createElement("div");row.className="word-card";const en=document.createElement("strong");en.textContent=w.en;const vi=document.createElement("span");vi.textContent=w.vi;const del=document.createElement("button");del.textContent="×";del.title="Xóa từ";del.addEventListener("click",()=>{data.words.splice(i,1);save()});row.append(en,vi,del);list.append(row)})}
 function renderHistory(){const list=document.getElementById("history-list");if(!list)return;list.innerHTML="";if(!data.sessions.length){list.innerHTML="<p class='muted'>Bạn chưa hoàn thành phiên luyện tập nào.</p>";return}data.sessions.forEach(s=>{const row=document.createElement("div");row.className="history-row";const left=document.createElement("span");left.textContent=s.date+" · "+s.minutes+" phút";const right=document.createElement("b");right.textContent=s.correct+"/"+s.total+" câu đúng";row.append(left,right);list.append(row)})}
 document.getElementById("reset-demo").addEventListener("click",()=>{if(confirm("Bạn có chắc muốn xóa toàn bộ tiến độ và từ vựng trên thiết bị này?")){localStorage.removeItem(KEY);data=loadData();save()}});
 setText("today-label",new Date().toLocaleDateString("vi-VN",{weekday:"long",day:"numeric",month:"long"}));
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
 renderStats();
