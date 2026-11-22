@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="vi"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f8fc"><meta name="description" content="Không gian tự học TOEIC cá nhân bằng tiếng Việt">
+<title>TOEIC của tôi</title><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./styles.css">
+</head><body><div class="shell">
+<aside class="sidebar">
+<a class="brand" href="#"><span class="brand-mark">T</span><span>TOEIC<span class="brand-light">.study</span></span></a>
+<div class="profile-mini"><div class="avatar">T</div><div><strong>Góc học tập</strong><small>Kế hoạch của bạn</small></div></div>
+<nav class="nav">
+<button class="nav-link active" data-view="overview"><span>⌂</span>Tổng quan</button>
+<button class="nav-link" data-view="practice"><span>▤</span>Luyện đề</button>
+<button class="nav-link" data-view="vocabulary"><span>✎</span>Sổ từ vựng</button>
+<button class="nav-link" data-view="progress"><span>▥</span>Tiến độ học</button>
+</nav><div class="sidebar-bottom"><div class="tip-card"><span>✦ Mẹo học tập</span><p>Học đều mỗi ngày 20–30 phút giúp bạn duy trì thói quen tốt.</p></div><small class="muted">Phiên bản đầu tiên · Miễn phí</small></div>
+</aside>
+<main class="main">
+<header class="topbar"><div><span class="eyebrow">KHÔNG GIAN HỌC TẬP CÁ NHÂN</span><h1 id="page-title">Chào bạn! Sẵn sàng học TOEIC chưa?</h1><p id="page-subtitle">Mỗi ngày một chút, tiến bộ từng bước.</p></div><button id="reset-demo" class="ghost-btn">↻ Đặt lại dữ liệu</button></header>
+<section id="view-overview" class="view active-view">
+<div class="hero"><div><span class="hero-kicker">MỤC TIÊU CỦA BẠN</span><h2>Chinh phục TOEIC<br><em>theo cách của bạn.</em></h2><p>Theo dõi hành trình học, luyện từng phần và lưu lại những từ vựng quan trọng.</p><button class="primary-btn" data-go="practice">Bắt đầu luyện tập <span>→</span></button></div><div class="hero-art"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="book">ABC<span>TOEIC</span></div><span class="floating f1">LISTENING</span><span class="floating f2">READING</span><span class="floating f3">✦</span></div></div>
+<div class="section-heading"><div><span class="eyebrow">TỔNG QUAN</span><h2>Hành trình của bạn</h2></div><span class="muted" id="today-label"></span></div>
+<div class="stats-grid">
+<article class="stat-card"><div class="stat-top"><span>Thời gian học</span><span class="stat-icon purple">◷</span></div><strong id="minutes-stat">0 <small>phút</small></strong><p>Tổng thời gian đã luyện</p></article>
+<article class="stat-card"><div class="stat-top"><span>Câu đã làm</span><span class="stat-icon blue">✓</span></div><strong id="questions-stat">0</strong><p>Câu hỏi đã hoàn thành</p></article>
+<article class="stat-card"><div class="stat-top"><span>Độ chính xác</span><span class="stat-icon green">◎</span></div><strong id="accuracy-stat">—</strong><p>Tỷ lệ trả lời đúng</p></article>
+<article class="stat-card"><div class="stat-top"><span>Từ đã lưu</span><span class="stat-icon orange">✎</span></div><strong id="words-stat">0</strong><p>Trong sổ từ vựng</p></article></div>
+<div class="content-grid"><article class="panel"><div class="panel-head"><div><span class="eyebrow">LUYỆN TẬP</span><h3>Chọn phần bạn muốn học</h3></div><span class="muted">Bài mẫu</span></div>
+<div class="part-list">
+<button class="part-item" data-start="listening"><span class="part-no">01</span><span><b>Listening · Nghe hiểu</b><small>Nghe câu hỏi và chọn đáp án</small></span><span class="part-arrow">→</span></button>
+<button class="part-item" data-start="reading"><span class="part-no">02</span><span><b>Reading · Đọc hiểu</b><small>Ngữ pháp, từ vựng và đọc hiểu</small></span><span class="part-arrow">→</span></button>
+<button class="part-item" data-start="vocabulary"><span class="part-no">03</span><span><b>Vocabulary · Từ vựng</b><small>Ôn từ vựng TOEIC thông dụng</small></span><span class="part-arrow">→</span></button>
+</div></article>
+<article class="panel goal-panel"><span class="eyebrow">MỤC TIÊU HẰNG NGÀY</span><h3>Tiến bộ từ những việc nhỏ</h3><p>Hoàn thành một phiên luyện tập hôm nay để ghi dấu tiến bộ của bạn.</p><div class="goal-circle"><div><strong id="daily-minutes">0</strong><small>/ 30 phút</small></div></div><span class="goal-note">Mục tiêu 30 phút mỗi ngày</span></article></div>
+</section>
+<section id="view-practice" class="view"><div class="section-heading"><div><span class="eyebrow">LUYỆN TẬP TOEIC</span><h2>Chọn bài luyện</h2><p class="muted">Câu hỏi mẫu để làm quen định dạng TOEIC.</p></div></div>
+<div class="practice-grid"><article class="practice-card"><div class="practice-symbol purple">♫</div><span class="eyebrow">LISTENING</span><h3>Nghe hiểu</h3><p>Luyện nghe câu ngắn và phản xạ với tình huống công sở.</p><button class="outline-btn" data-start="listening">Làm bài nghe →</button></article><article class="practice-card"><div class="practice-symbol blue">A文</div><span class="eyebrow">READING</span><h3>Đọc hiểu</h3><p>Luyện ngữ pháp và từ vựng qua câu hỏi trắc nghiệm.</p><button class="outline-btn" data-start="reading">Làm bài đọc →</button></article></div>
+<div id="quiz" class="quiz panel hidden"></div><p class="demo-note">Đây là bộ câu hỏi minh họa ban đầu, không phải đề thi TOEIC chính thức.</p></section>
+<section id="view-vocabulary" class="view"><div class="section-heading"><div><span class="eyebrow">VOCABULARY NOTEBOOK</span><h2>Sổ từ vựng cá nhân</h2><p class="muted">Lưu lại từ mới và ôn tập thường xuyên.</p></div></div>
+<form id="word-form" class="add-word panel"><input id="word-en" placeholder="Từ tiếng Anh (ví dụ: appointment)" required><input id="word-vi" placeholder="Nghĩa tiếng Việt" required><button class="primary-btn" type="submit">+ Thêm từ</button></form><div id="word-list" class="word-list"></div></section>
+<section id="view-progress" class="view"><div class="section-heading"><div><span class="eyebrow">YOUR PROGRESS</span><h2>Tiến độ học tập</h2><p class="muted">Kết quả đang được lưu trên trình duyệt này.</p></div></div>
+<div class="stats-grid"><article class="stat-card"><span class="muted">Tổng câu đã làm</span><strong id="progress-total">0</strong></article><article class="stat-card"><span class="muted">Số câu đúng</span><strong id="progress-correct">0</strong></article><article class="stat-card"><span class="muted">Tỷ lệ chính xác</span><strong id="progress-rate">—</strong></article><article class="stat-card"><span class="muted">Phiên đã học</span><strong id="progress-sessions">0</strong></article></div>
+<article class="panel history-panel"><div class="panel-head"><h3>Lịch sử luyện tập</h3><span class="muted">Gần đây nhất</span></div><div id="history-list" class="history-list"><p class="muted">Bạn chưa hoàn thành phiên luyện tập nào.</p></div></article>
+<div class="notice"><b>Về lưu và đồng bộ:</b> Bản hiện tại lưu trong trình duyệt trên thiết bị bạn đang dùng. Chưa có đăng nhập và chưa tự đồng bộ giữa các thiết bị. Phần kết nối tài khoản sẽ được thiết lập ở bước tiếp theo.</div></section>
+<footer>Được tạo để đồng hành cùng hành trình TOEIC của bạn <span>✦</span></footer>
+</main></div><script src="./app.js"></script></body></html>
