@@ -54,7 +54,7 @@ if(vocab){
  $("vocabViewTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>setMode(b.dataset.vmode));
  ["vSearch","vLesson","vLevel"].forEach(id=>$(id).addEventListener(id==="vSearch"?"input":"change",()=>{renderList();if(vocab.classList.contains("vocab-mode-due"))renderDue()}));
  const word=$("wordIpa");
- if(word&&window.MutationObserver){const obs=new MutationObserver(()=>{const v=word.textContent;if(v&&v!=="Chưa có IPA")word.textContent=ipaDots(v)});obs.observe(word,{childList:true,characterData:true,subtree:true});if(word.textContent)word.textContent=ipaDots(word.textContent)}
+ if(word&&window.MutationObserver){const obs=new MutationObserver(()=>{const v=word.textContent;if(v&&v!=="Chưa có IPA"){const dotted=ipaDots(v);if(dotted!==v)word.textContent=dotted}});obs.observe(word,{childList:true,characterData:true,subtree:true});if(word.textContent){const dotted=ipaDots(word.textContent);if(dotted!==word.textContent)word.textContent=dotted}}
 }
 if(grammar&&Array.isArray(window.TOEIC_CURRICULUM)&&!$("courseCurriculum")){
  const anchor=$("grammarList"),section=document.createElement("section");section.className="course-curriculum";section.id="courseCurriculum";
