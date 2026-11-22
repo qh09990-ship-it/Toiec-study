@@ -18,7 +18,7 @@ const DEFAULT_WORDS=[{en:"appointment",vi:"cuộc hẹn"},{en:"available",vi:"c�
 const KEY="toeicStudy_v1";
 let data=loadData(),currentQuestions=[],currentIndex=0,selected=null,answered=false,sessionStart=0,sessionCorrect=0,currentType="reading";
 function loadData(){try{return JSON.parse(localStorage.getItem(KEY))||{minutes:0,questions:0,correct:0,words:DEFAULT_WORDS,sessions:[]}}catch{return {minutes:0,questions:0,correct:0,words:DEFAULT_WORDS,sessions:[]}}}
-function save(){localStorage.setItem(KEY,JSON.stringify(data));renderStats()}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));renderStats();if(window.TOEIC_CLOUD_SAVE){window.TOEIC_CLOUD_SAVE(data)}}
 function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=value}
 function renderStats(){
  const accuracy=data.questions?Math.round(data.correct/data.questions*100)+"%":"—",today=new Date().toLocaleDateString("vi-VN");
@@ -59,3 +59,5 @@ document.getElementById("reset-demo").addEventListener("click",()=>{if(confirm("
 setText("today-label",new Date().toLocaleDateString("vi-VN",{weekday:"long",day:"numeric",month:"long"}));
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
 renderStats();
+
+window.ToeicStudy={getData:()=>data,setData:(next)=>{data=next;localStorage.setItem(KEY,JSON.stringify(data));renderStats()}};
