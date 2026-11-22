@@ -22,9 +22,9 @@ const toeic=[
 {q:"All invoices must be submitted _____ the fifth day of each month.",opts:["by","during","among","while"],answer:0,explain:"By diễn tả hạn chót: trước hoặc vào ngày thứ năm.",source:"Câu tự biên soạn theo dạng TOEIC Part 5; không phải câu hỏi chính thức."},
 {q:"Ms. Chen has worked in the accounting department _____ 2021.",opts:["for","since","during","until"],answer:1,explain:"Since đi với mốc thời gian.",source:"Câu tự biên soạn theo dạng TOEIC Part 5; không phải câu hỏi chính thức."},
 {q:"The conference room is currently _____.",opts:["available","availability","avail","availably"],answer:0,explain:"Sau is cần tính từ: available.",source:"Câu tự biên soạn theo dạng TOEIC Part 5; không phải câu hỏi chính thức."},
-{q:"When will the delivery arrive?",opts:["At approximately 3 p.m.","At the loading dock.","The blue package."],answer:0,explain:"When hỏi thời gian; đáp án nêu thời điểm.",source:"Câu tự biên soạn theo dạng TOEIC Listening Part 2; không có audio."},
-{q:"Where can I find the application form?",opts:["Next Monday.","On the company website.","For two weeks."],answer:1,explain:"Where hỏi địa điểm; đáp án là trên website công ty.",source:"Câu tự biên soạn theo dạng TOEIC Listening Part 2; không có audio."},
-{q:"Who is leading the training session?",opts:["In the main hall.","Mr. Davis from HR.","At nine o'clock."],answer:1,explain:"Who hỏi người phụ trách.",source:"Câu tự biên soạn theo dạng TOEIC Listening Part 2; không có audio."}
+{listening:true,q:"When will the delivery arrive?",opts:["At approximately 3 p.m.","At the loading dock.","The blue package."],answer:0,explain:"When hỏi thời gian; đáp án nêu thời điểm.",source:"Câu tự biên soạn theo dạng TOEIC Listening Part 2; không có audio."},
+{listening:true,q:"Where can I find the application form?",opts:["Next Monday.","On the company website.","For two weeks."],answer:1,explain:"Where hỏi địa điểm; đáp án là trên website công ty.",source:"Câu tự biên soạn theo dạng TOEIC Listening Part 2; không có audio."},
+{listening:true,q:"Who is leading the training session?",opts:["In the main hall.","Mr. Davis from HR.","At nine o'clock."],answer:1,explain:"Who hỏi người phụ trách.",source:"Câu tự biên soạn theo dạng TOEIC Listening Part 2; không có audio."}
 ].map(x=>({...x,group:"TOEIC mở rộng"}));
 let quiz=[],answers={},submitted=false;
 function build(){
@@ -40,7 +40,7 @@ function build(){
 function draw(){
  const correct=quiz.filter((q,i)=>answers[i]===q.answer).length;
  $("quizArea").innerHTML='<p><b>'+quiz.length+' câu hỏi</b> · '+(submitted?'Kết quả: '+correct+'/'+quiz.length+' câu đúng':'Chọn một đáp án cho mỗi câu rồi nộp bài.')+'</p>'+quiz.map((q,i)=>'<div class="quiz-q"><small>'+esc(q.group)+'</small><p>'+esc(q.q)+'</p>'+q.opts.map((o,j)=>'<button class="quiz-opt '+(answers[i]===j?'chosen ':'')+(submitted&&j===q.answer?'right':submitted&&answers[i]===j?'wrong':'')+'" data-q="'+i+'" data-a="'+j+'" '+(submitted?'disabled':'')+'>'+String.fromCharCode(65+j)+'. '+esc(o)+'</button>').join("")+(submitted?'<p class="tool-muted">'+(answers[i]===q.answer?'Chính xác. ':'Chưa đúng. Đáp án: '+q.opts[q.answer]+'. ')+esc(q.explain)+'</p><p class="tool-muted">Nguồn: '+esc(q.source)+'</p>':'')+'</div>').join("")+'<div class="tool-row">'+(submitted?'<button class="primary" id="quizAgain">Làm bài khác</button>':'<button class="primary" id="quizSubmit" '+(Object.keys(answers).length!==quiz.length?'disabled':'')+'>Nộp bài</button>')+'</div><p class="tool-muted">Bộ mở rộng tham khảo cấu trúc bài thi từ ETS. Website không sao chép nguyên văn câu hỏi có bản quyền.</p><p><a href="https://www.ets.org/toeic/test-takers/prepare.html" target="_blank" rel="noopener">Tài liệu luyện thi TOEIC chính thức của ETS</a></p>';
- $("quizArea").querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{answers[+b.dataset.q]=+b.dataset.a;draw()});
+ $("quizArea").querySelectorAll("[data-speak]").forEach(b=>b.onclick=()=>{if(typeof speak==="function")speak(quiz[+b.dataset.speak].q)});\n $("quizArea").querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{answers[+b.dataset.q]=+b.dataset.a;draw()});
  $("quizSubmit")?.addEventListener("click",()=>{submitted=true;draw()});$("quizAgain")?.addEventListener("click",build);
 }
 $("quizBegin").onclick=build;
