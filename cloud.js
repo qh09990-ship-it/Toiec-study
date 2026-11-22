@@ -10,8 +10,9 @@
  const say=(title,detail)=>{if(status)status.textContent=title;if(message)message.textContent=detail};
  const signedIn=(yes)=>{login.classList.toggle("hidden",yes);register.classList.toggle("hidden",yes);logout.classList.toggle("hidden",!yes);email.classList.toggle("hidden",yes);password.classList.toggle("hidden",yes)};
  if(!cfg.url||!cfg.anonKey||!window.supabase){
-   [email,password,login,register,logout].forEach(el=>{if(el)el.disabled=true});
-   say("Chưa kết nối tài khoản","Tiến độ đang lưu trên trình duyệt này. Sau khi cấu hình Supabase Free, phần đăng nhập và đồng bộ sẽ hoạt động.");
+   say("Chưa kết nối tài khoản","Nút tạo tài khoản chưa thể hoạt động vì website chưa được nối với Supabase. Hãy thiết lập Supabase Free trước; dữ liệu học hiện vẫn lưu trên thiết bị này.");
+   if(register)register.addEventListener("click",()=>say("Cần kết nối Supabase trước","Tạo dự án Supabase miễn phí, sau đó thêm Project URL và anon/publishable key vào file config.js trên GitHub. Khi Cloudflare cập nhật website, nút này sẽ tạo tài khoản được."));
+   if(login)login.addEventListener("click",()=>say("Chưa có hệ thống đăng nhập","Hãy kết nối Supabase Free và tạo tài khoản trước khi đăng nhập."));
    return;
  }
  const client=window.supabase.createClient(cfg.url,cfg.anonKey);
