@@ -1,6 +1,6 @@
-// Chỉ điền Project URL và anon/publishable key của Supabase tại đây.
-// Hai giá trị này được phép xuất hiện ở trình duyệt; KHÔNG dùng service_role key.
+// Supabase public browser configuration.
+// Publishable key is intended for client-side use. Never put a secret/service_role key here.
 window.TOEIC_SUPABASE_CONFIG = {
-  url: "",
-  anonKey: ""
+  url: "https://atyolbcpwchggpkmigdx.supabase.co",
+  anonKey: "sb_publishable_d5282UN5U_TpjAdWJJ051A_FnsduOn_"
 };
