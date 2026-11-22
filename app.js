@@ -30,7 +30,7 @@ function renderStats(){
 function setView(name){
  document.querySelectorAll(".view").forEach(e=>e.classList.remove("active-view"));const el=document.getElementById("view-"+name);if(el)el.classList.add("active-view");
  document.querySelectorAll(".nav-link").forEach(e=>e.classList.toggle("active",e.dataset.view===name));
- const titles={overview:["Chào bạn! Sẵn sàng học TOEIC chưa?","Mỗi ngày một chút, tiến bộ từng bước."],practice:["Luyện tập TOEIC","Chọn phần luyện nghe hoặc đọc phù hợp với bạn."],vocabulary:["Sổ từ vựng của bạn","Lưu từ mới và ôn tập bất cứ lúc nào."],progress:["Tiến độ học tập","Nhìn lại những nỗ lực bạn đã tích lũy."]};
+ const titles={overview:["Chào bạn! Sẵn sàng học TOEIC chưa?","Mỗi ngày một chút, tiến bộ từng bước."],practice:["Luyện tập TOEIC","Chọn phần luyện nghe hoặc đọc phù hợp với bạn."],vocabulary:["Sổ từ vựng của bạn","Lưu từ mới và ôn tập bất cứ lúc nào."],grammar:["Ngữ pháp TOEIC – 7 buổi học","Ôn tập 48 chủ đề ngữ pháp theo tài liệu của bạn."],progress:["Tiến độ học tập","Nhìn lại những nỗ lực bạn đã tích lũy."]};
  setText("page-title",titles[name][0]);setText("page-subtitle",titles[name][1]);window.scrollTo({top:0,behavior:"smooth"});
 }
 document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
