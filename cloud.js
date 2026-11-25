@@ -37,8 +37,8 @@
   };
 
   let timer = null, activeUser = null, loading = false;
-  const saveNow = async () => {
-    if (!activeUser || loading) return;
+  const saveNow = async (duringLoad = false) => {
+    if (!activeUser || (loading && !duringLoad)) return;
     const updatedAt = new Date().toISOString();
     const payload = { storage: readLocal(), updatedAt };
     const { error } = await client.from("learning_data").upsert(
@@ -52,6 +52,7 @@
     }
   };
   window.TOEIC_CLOUD_SAVE = () => {
+    localStorage.setItem(META, new Date().toISOString());
     if (!activeUser) return;
     clearTimeout(timer);
     timer = setTimeout(saveNow, 800);
@@ -79,7 +80,7 @@
         localStorage.setItem(META, new Date(remoteTime).toISOString());
         say("Đã tải tiến độ từ tài khoản", "Dữ liệu học trên thiết bị này đã được cập nhật theo bản đồng bộ mới nhất.");
       } else if (Object.keys(local).length || remote) {
-        await saveNow();
+        await saveNow(true);
       } else {
         await saveNow();
       }
