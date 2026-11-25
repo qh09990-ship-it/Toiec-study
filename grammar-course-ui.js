@@ -58,7 +58,7 @@ data.forEach((lesson,idx)=>{
   const vform=document.createElement("div");vform.className="glesson-quiz";
   const vstate={answers:{},submitted:false};
   const vqs=shuffled.map(word=>{
-   const sentence=word.example.replace(new RegExp(word.en.replace(/[.*+?^${}()|[\]\\]/g,"\\actions.append(submit,reset,score);body.append(form,actions);d.append(sum,body);section.append(d);"),"i"),"________");
+   const sentence=word.example&&word.example.toLowerCase().includes(word.en.toLowerCase())?word.example.replace(word.en,"________"):"Choose the English word that means: "+word.vi;
    const pool=lessonWords.filter(x=>x.en!==word.en).map(x=>x.en);
    const wrong=pool.sort(()=>Math.random()-.5).slice(0,3);
    const choices=[word.en,...wrong].sort(()=>Math.random()-.5);
