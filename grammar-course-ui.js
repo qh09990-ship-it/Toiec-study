@@ -5,7 +5,7 @@ document.getElementById("courseCurriculum")?.remove();
 const style=document.createElement("style");style.textContent="#grammarCourseV2{margin:18px 0}.glesson-topic{border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin:8px 0;background:#fbfcfe}.glesson-topic summary{cursor:pointer;font-weight:750}.glesson-topic-content{padding:8px 2px;line-height:1.65}.glesson-topic-content p{margin:5px 0}#grammarCourseV2 h2{margin:0 0 6px}#grammarCourseV2 .course-intro{color:var(--muted);font-size:13px;margin:0 0 14px}.glesson{border:1px solid var(--line);border-radius:14px;background:#fff;margin:12px 0;overflow:hidden}.glesson>summary{cursor:pointer;padding:15px 17px;font-weight:800;display:flex;justify-content:space-between;gap:10px;align-items:center}.glesson[open]>summary{border-bottom:1px solid var(--line);background:#f7f9fc}.glesson-body{padding:14px 16px}.glesson-body h3{margin:15px 0 8px}.glesson-notes{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.75 system-ui,sans-serif;color:#263448;background:#f8fafc;border-radius:10px;padding:14px;margin:10px 0}.gq{border-top:1px solid var(--line);padding:13px 0}.gq-title{font-weight:700;margin-bottom:9px}.gq-option{display:block;width:100%;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:#fff;margin:6px 0;cursor:pointer;color:inherit}.gq-option.selected{border-color:#315efb;background:#eef3ff}.gq-option.correct{border-color:#16834a;background:#e9f8ef}.gq-option.incorrect{border-color:#c43d3d;background:#fff0f0}.gq-explain{background:#f2f7f3;border-radius:8px;padding:10px;margin-top:8px;font-size:13px;line-height:1.6}.gq-meta{color:var(--muted);font-size:12px}.glesson-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}.glesson-actions button{border:1px solid var(--line);border-radius:9px;padding:10px 13px;background:white;cursor:pointer;font-weight:700}.glesson-actions .primary{background:var(--navy);color:white}.glesson-score{font-weight:800}";document.head.append(style);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const section=document.createElement("section");section.id="grammarCourseV2";
-section.innerHTML='<h2>Ngữ pháp theo 7 buổi học</h2><p class="course-intro">Mỗi buổi gồm phần kiến thức cần nhớ và bài tập thực hành. Câu hỏi được lấy từ phần chữa BTVN tương ứng; đáp án và giải thích mở sau khi bạn nộp bài.</p>';
+section.innerHTML='<h2>Ngữ pháp theo 8 buổi học</h2><p class="course-intro">Mỗi buổi gồm phần kiến thức cần nhớ và bài tập thực hành. Câu hỏi được lấy từ phần chữa BTVN tương ứng; đáp án và giải thích mở sau khi bạn nộp bài.</p>';
 data.forEach((lesson,idx)=>{
  const d=document.createElement("details");d.className="glesson";d.open=idx===0;
  const sum=document.createElement("summary");sum.innerHTML='<span>'+esc(lesson.title)+'</span><span class="gq-meta">'+lesson.questions.length+' câu</span>';
@@ -50,7 +50,7 @@ data.forEach((lesson,idx)=>{
 
  // Bài tập từ vựng theo đúng buổi học: điền từ đã học vào câu tiếng Anh.
  const lessonWords=(Array.isArray(window.VOCAB)?window.VOCAB:[])
-  .filter(x=>x.lesson==="Buổi "+lesson.lesson&&x.en&&x.example&&x.example.toLowerCase().includes(x.en.toLowerCase()));
+  .filter(x=>x.lesson==="Buổi "+lesson.lesson&&x.en);
  const shuffled=lessonWords.slice().sort(()=>Math.random()-.5).slice(0,5);
  if(shuffled.length){
   const vh=document.createElement("h3");vh.textContent="3. Vận dụng từ vựng của buổi "+lesson.lesson;body.append(vh);
