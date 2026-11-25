@@ -130,11 +130,12 @@ async function speak(text){if(!text)return;
   if(sesameAudio){sesameAudio.pause();URL.revokeObjectURL(sesameAudio.src)}
   const response=await fetch("/api/speech",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
   if(!response.ok){let msg="HTTP "+response.status;try{msg=(await response.json()).error||msg}catch{}throw new Error(msg)}
-  const blob=await response.blob();sesameAudio=new Audio(URL.createObjectURL(blob));sesameAudio.playbackRate=rate;sesameAudio.onended=()=>URL.revokeObjectURL(sesameAudio.src);await sesameAudio.play();
+  const blob=await response.blob();if(!blob.size)throw new Error("Máy chủ không trả về dữ liệu âm thanh.");sesameAudio=new Audio(URL.createObjectURL(blob));sesameAudio.preload="auto";sesameAudio.playbackRate=rate;sesameAudio.onended=()=>URL.revokeObjectURL(sesameAudio.src);sesameAudio.onerror=()=>{$("voiceInfo").textContent="Không thể giải mã tệp âm thanh. Hãy thử lại.";};await sesameAudio.play();
   $("voiceInfo").textContent="Đang phát giọng đọc ElevenLabs";
  }catch(e){$("voiceInfo").textContent="Lỗi phát âm: "+e.message}
  finally{document.querySelectorAll("#speakWord,#speakExample").forEach(b=>b.disabled=false)}
 }
+window.TOEIC_SPEAK=speak;
 function setRate(r){rate=+r;document.querySelectorAll("[data-rate]").forEach(b=>b.classList.toggle("active",+b.dataset.rate===rate))}
 document.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>setRate(b.dataset.rate));
 function filterVocab(){
