@@ -47,7 +47,7 @@ main{max-width:1080px;margin:22px auto;padding:0 16px 40px}
    <select id="vLesson"><option value="">Tất cả buổi học</option></select>
    <select id="vLevel"><option value="">Mọi mức độ</option><option>★ Thường xuyên gặp</option><option>★ Trung bình</option><option>★ Ít gặp</option></select>
   </div>
-  <div class="rate"><b>Tốc độ phát âm:</b><button data-rate="0.3">0,3x</button><button data-rate="0.5">0,5x</button><button data-rate="1" class="active">1x</button><small id="voiceInfo">Giọng tiếng Anh có sẵn trên thiết bị</small></div>
+  <div class="rate"><b>Tốc độ phát âm:</b><button data-rate="0.3">0,3x</button><button data-rate="0.5">0,5x</button><button data-rate="1" class="active">1x</button><small id="voiceInfo">Chưa kết nối máy chủ Sesame</small><div class="rate" style="width:100%;margin-top:8px"><input id="voiceApiUrl" type="url" placeholder="Địa chỉ API GPU, ví dụ https://...:8000" style="min-width:230px;flex:1"><input id="voiceApiKey" type="password" placeholder="Mã truy cập Sesame" style="min-width:180px;flex:1"><button type="button" id="saveVoiceConfig" class="soft">Lưu kết nối</button></div></div>
  </div>
  <div class="caption" id="vCaption">Chạm vào thẻ để lật mặt trước / mặt sau. Dùng nút loa để nghe phát âm.</div>
  <div class="card-wrap">
@@ -109,10 +109,13 @@ function cls(level){return level.includes("Thường xuyên")?"red":level.includ
 function fillSelect(id, values){values.forEach(v=>{let o=document.createElement("option");o.value=v;o.textContent=v;$(id).append(o)})}
 fillSelect("vLesson",[...new Set(VOCAB.map(x=>x.lesson))]);
 fillSelect("gLesson",[...new Set(GRAMMAR.map(x=>x.lesson))]);
-function speak(text){if(!text)return;if(!("speechSynthesis" in window)){alert("Trình duyệt chưa hỗ trợ đọc văn bản. Hãy thử Chrome hoặc Edge.");return}
- speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate;
- let vs=speechSynthesis.getVoices();let v=vs.find(x=>/^en-US/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang));if(v)u.voice=v;
- u.onerror=()=>{$("voiceInfo").textContent="Không phát được âm thanh trên thiết bị này"};speechSynthesis.speak(u)}
+let sesameAudio=null;
+function loadVoiceConfig(){const c=window.TOEIC_VOICE_CONFIG||{},saved=JSON.parse(localStorage.getItem("toeicSesameVoice")||"{}");$("voiceApiUrl").value=saved.apiBaseUrl||c.apiBaseUrl||"";$("voiceApiKey").value=saved.apiKey||"";$("voiceInfo").textContent=saved.apiBaseUrl&&saved.apiKey?"Đã lưu cấu hình Sesame":"Nhập địa chỉ máy chủ GPU và mã truy cập sau khi triển khai"}
+$("saveVoiceConfig").addEventListener("click",()=>{const apiBaseUrl=$("voiceApiUrl").value.trim().replace(/\/$/,""),apiKey=$("voiceApiKey").value.trim();if(!apiBaseUrl||!apiKey){$("voiceInfo").textContent="Cần nhập đủ địa chỉ API và mã truy cập";return}localStorage.setItem("toeicSesameVoice",JSON.stringify({apiBaseUrl,apiKey}));$("voiceInfo").textContent="Đã lưu kết nối Sesame trên thiết bị này"});
+async function speak(text){if(!text)return;const saved=JSON.parse(localStorage.getItem("toeicSesameVoice")||"{}");const base=saved.apiBaseUrl||(window.TOEIC_VOICE_CONFIG||{}).apiBaseUrl;const key=saved.apiKey;if(!base||!key){$("voiceInfo").textContent="Hãy nhập địa chỉ API GPU và mã truy cập để dùng giọng Sesame";return}
+ $("voiceInfo").textContent="Sesame đang tạo giọng đọc...";document.querySelectorAll("#speakWord,#speakExample").forEach(b=>b.disabled=true);
+ try{if(sesameAudio){sesameAudio.pause();URL.revokeObjectURL(sesameAudio.src)}const response=await fetch(base+"/v1/speech",{method:"POST",headers:{"Content-Type":"application/json","X-Voice-Key":key},body:JSON.stringify({text,speed:rate})});if(!response.ok){let msg="HTTP "+response.status;try{msg=(await response.json()).detail||msg}catch{}throw new Error(msg)}const blob=await response.blob();sesameAudio=new Audio(URL.createObjectURL(blob));sesameAudio.onended=()=>URL.revokeObjectURL(sesameAudio.src);await sesameAudio.play();$("voiceInfo").textContent="Đang phát giọng Sesame CSM-1B"}catch(e){$("voiceInfo").textContent="Lỗi Sesame: "+e.message}finally{document.querySelectorAll("#speakWord,#speakExample").forEach(b=>b.disabled=false)}}
+loadVoiceConfig();
 function setRate(r){rate=+r;document.querySelectorAll("[data-rate]").forEach(b=>b.classList.toggle("active",+b.dataset.rate===rate))}
 document.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>setRate(b.dataset.rate));
 function filterVocab(){
@@ -162,6 +165,7 @@ $("vocabTab").onclick=()=>{ $("vocabSection").classList.remove("hide");$("gramma
 $("grammarTab").onclick=()=>{ $("grammarSection").classList.remove("hide");$("vocabSection").classList.add("hide");$("grammarTab").classList.add("active");$("vocabTab").classList.remove("active")};
 resetDeck();renderGrammar();
 </script>
+<script src="./voice-config.js"></script>
 <script src="./study-tools.js"></script>
 <script src="./course-content.js"></script>
 <script src="./learning-ui.js"></script>
