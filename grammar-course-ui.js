@@ -29,7 +29,9 @@ data.forEach((lesson,idx)=>{
  const submit=document.createElement("button");submit.className="primary";submit.textContent="Nộp bài buổi "+lesson.lesson;submit.disabled=true;
  const reset=document.createElement("button");reset.textContent="Làm lại";
  const score=document.createElement("span");score.className="glesson-score";
- submit.addEventListener("click",()=>{state.submitted=true;let correct=0;[...form.querySelectorAll(".gq")].forEach((card,qi)=>{const q=lesson.questions[qi],selected=state.answers[qi];if(selected===q.answer)correct++;card.querySelectorAll("button").forEach((b,oi)=>{const label=q.options[oi].label;if(label===q.answer)b.classList.add("correct");else if(label===selected)b.classList.add("incorrect");b.disabled=true});card.querySelector(".gq-explain").hidden=false});score.textContent="Kết quả: "+correct+"/"+lesson.questions.length+" câu đúng";submit.disabled=true;});
+ submit.addEventListener("click",()=>{state.submitted=true;let correct=0;[...form.querySelectorAll(".gq")].forEach((card,qi)=>{const q=lesson.questions[qi],selected=state.answers[qi];if(selected===q.answer)correct++;card.querySelectorAll("button").forEach((b,oi)=>{const label=q.options[oi].label;if(label===q.answer)b.classList.add("correct");else if(label===selected)b.classList.add("incorrect");b.disabled=true});card.querySelector(".gq-explain").hidden=false});const total=lesson.questions.length,percent=Math.round(correct/total*100),wrong=total-correct;
+  score.textContent="Điểm: "+correct+"/"+total+" câu đúng · "+percent+"% · Sai "+wrong+" câu";
+  submit.disabled=true;});
  reset.addEventListener("click",()=>{state.answers={};state.submitted=false;score.textContent="";form.querySelectorAll(".gq").forEach(card=>{card.querySelectorAll("button").forEach(b=>{b.disabled=false;b.classList.remove("selected","correct","incorrect")});card.querySelector(".gq-explain").hidden=true});submit.disabled=true});
  actions.append(submit,reset,score);body.append(form,actions);d.append(sum,body);section.append(d);
 });
