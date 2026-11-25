@@ -33,7 +33,44 @@ data.forEach((lesson,idx)=>{
   score.textContent="Điểm: "+correct+"/"+total+" câu đúng · "+percent+"% · Sai "+wrong+" câu";
   submit.disabled=true;});
  reset.addEventListener("click",()=>{state.answers={};state.submitted=false;score.textContent="";form.querySelectorAll(".gq").forEach(card=>{card.querySelectorAll("button").forEach(b=>{b.disabled=false;b.classList.remove("selected","correct","incorrect")});card.querySelector(".gq-explain").hidden=true});submit.disabled=true});
- actions.append(submit,reset,score);body.append(form,actions);d.append(sum,body);section.append(d);
+ actions.append(submit,reset,score);body.append(form,actions);
+
+ // Bài tập từ vựng theo đúng buổi học: điền từ đã học vào câu tiếng Anh.
+ const lessonWords=(Array.isArray(window.VOCAB)?window.VOCAB:[])
+  .filter(x=>x.lesson==="Buổi "+lesson.lesson&&x.en&&x.example&&x.example.toLowerCase().includes(x.en.toLowerCase()));
+ const shuffled=lessonWords.slice().sort(()=>Math.random()-.5).slice(0,5);
+ if(shuffled.length){
+  const vh=document.createElement("h3");vh.textContent="3. Vận dụng từ vựng của buổi "+lesson.lesson;body.append(vh);
+  const intro=document.createElement("p");intro.className="gq-meta";intro.textContent="Chọn từ tiếng Anh phù hợp để hoàn thành câu. Các lựa chọn chỉ hiển thị bằng tiếng Anh; nghĩa và giải thích sẽ xuất hiện sau khi nộp bài.";body.append(intro);
+  const vform=document.createElement("div");vform.className="glesson-quiz";
+  const vstate={answers:{},submitted:false};
+  const vqs=shuffled.map(word=>{
+   const sentence=word.example.replace(new RegExp(word.en.replace(/[.*+?^${}()|[\]\\]/g,"\\actions.append(submit,reset,score);body.append(form,actions);d.append(sum,body);section.append(d);"),"i"),"________");
+   const pool=lessonWords.filter(x=>x.en!==word.en).map(x=>x.en);
+   const wrong=pool.sort(()=>Math.random()-.5).slice(0,3);
+   const choices=[word.en,...wrong].sort(()=>Math.random()-.5);
+   return {word,sentence,choices,answer:choices.indexOf(word.en)};
+  });
+  vqs.forEach((q,qi)=>{
+   const card=document.createElement("div");card.className="gq";
+   const title=document.createElement("div");title.className="gq-title";title.textContent="Từ vựng "+(qi+1)+". "+q.sentence;card.append(title);
+   q.choices.forEach((choice,oi)=>{
+    const b=document.createElement("button");b.type="button";b.className="gq-option";b.textContent=String.fromCharCode(65+oi)+". "+choice;
+    b.addEventListener("click",()=>{if(vstate.submitted)return;vstate.answers[qi]=oi;card.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");vsubmit.disabled=Object.keys(vstate.answers).length!==vqs.length});
+    card.append(b);
+   });
+   const explain=document.createElement("div");explain.className="gq-explain";explain.hidden=true;
+   explain.textContent="Đáp án: "+q.word.en+" – "+q.word.vi+". "+(q.word.example_vi||"");card.append(explain);vform.append(card);
+  });
+  const vactions=document.createElement("div");vactions.className="glesson-actions";
+  const vsubmit=document.createElement("button");vsubmit.className="primary";vsubmit.textContent="Nộp bài từ vựng buổi "+lesson.lesson;vsubmit.disabled=true;
+  const vreset=document.createElement("button");vreset.textContent="Làm lại bài từ vựng";
+  const vscore=document.createElement("span");vscore.className="glesson-score";
+  vsubmit.addEventListener("click",()=>{vstate.submitted=true;let correct=0;[...vform.querySelectorAll(".gq")].forEach((card,qi)=>{const selected=vstate.answers[qi],q=vqs[qi];if(selected===q.answer)correct++;card.querySelectorAll("button").forEach((b,oi)=>{if(oi===q.answer)b.classList.add("correct");else if(oi===selected)b.classList.add("incorrect");b.disabled=true});card.querySelector(".gq-explain").hidden=false});const total=vqs.length;vscore.textContent="Điểm từ vựng: "+correct+"/"+total+" · "+Math.round(correct/total*100)+"% · Sai "+(total-correct)+" câu";vsubmit.disabled=true});
+  vreset.addEventListener("click",()=>{vstate.answers={};vstate.submitted=false;vscore.textContent="";vform.querySelectorAll(".gq").forEach(card=>{card.querySelectorAll("button").forEach(b=>{b.disabled=false;b.classList.remove("selected","correct","incorrect")});card.querySelector(".gq-explain").hidden=true});vsubmit.disabled=true});
+  vactions.append(vsubmit,vreset,vscore);body.append(vform,vactions);
+ }
+ d.append(sum,body);section.append(d);
 });
 const anchor=document.getElementById("grammarList");if(anchor)anchor.parentNode.insertBefore(section,anchor);else root.append(section);
 })();
