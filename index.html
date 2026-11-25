@@ -122,18 +122,58 @@ function cls(level){return level.includes("Thường xuyên")?"red":level.includ
 function fillSelect(id, values){values.forEach(v=>{let o=document.createElement("option");o.value=v;o.textContent=v;$(id).append(o)})}
 fillSelect("vLesson",[...new Set(VOCAB.map(x=>x.lesson))]);
 fillSelect("gLesson",[...new Set(GRAMMAR.map(x=>x.lesson))]);
-let sesameAudio=null;
-async function speak(text){if(!text)return;
- $("voiceInfo").textContent="Đang tạo giọng đọc tự nhiên...";
- document.querySelectorAll("#speakWord,#speakExample").forEach(b=>b.disabled=true);
+let activeUtterance=null;
+function chooseEnglishVoice(){
+ const voices=window.speechSynthesis?.getVoices?.()||[];
+ const en=voices.filter(v=>/^en(-|_)/i.test(v.lang||""));
+ const score=v=>{
+  const n=(v.name||"").toLowerCase(),lang=(v.lang||"").toLowerCase();
+  let s=0;
+  if(lang==="en-us")s+=30;
+  if(/google us english/.test(n))s+=100;
+  if(/microsoft (aria|jenny|ava|guy|jane|sara)/.test(n))s+=90;
+  if(/natural|neural|premium/.test(n))s+=35;
+  if(/united states|us english/.test(n))s+=20;
+  if(/compact|espeak|robot/.test(n))s-=50;
+  return s;
+ };
+ return en.sort((a,b)=>score(b)-score(a))[0]||null;
+}
+async function speak(text){
+ if(!text)return;
+ const info=$("voiceInfo"),buttons=document.querySelectorAll("#speakWord,#speakExample");
+ if(!("speechSynthesis" in window)||!("SpeechSynthesisUtterance" in window)){
+  info.textContent="Trình duyệt này chưa hỗ trợ giọng đọc tích hợp. Hãy mở bằng Chrome, Edge hoặc Safari mới nhất.";
+  return;
+ }
+ buttons.forEach(b=>b.disabled=true);
  try{
-  if(sesameAudio){sesameAudio.pause();URL.revokeObjectURL(sesameAudio.src)}
-  const response=await fetch("/api/speech",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
-  if(!response.ok){let msg="HTTP "+response.status;try{msg=(await response.json()).error||msg}catch{}throw new Error(msg)}
-  const blob=await response.blob();if(!blob.size)throw new Error("Máy chủ không trả về dữ liệu âm thanh.");sesameAudio=new Audio(URL.createObjectURL(blob));sesameAudio.preload="auto";sesameAudio.playbackRate=rate;sesameAudio.onended=()=>URL.revokeObjectURL(sesameAudio.src);sesameAudio.onerror=()=>{$("voiceInfo").textContent="Không thể giải mã tệp âm thanh. Hãy thử lại.";};await sesameAudio.play();
-  $("voiceInfo").textContent="Đang phát giọng đọc ElevenLabs";
- }catch(e){$("voiceInfo").textContent="Lỗi phát âm: "+e.message}
- finally{document.querySelectorAll("#speakWord,#speakExample").forEach(b=>b.disabled=false)}
+  window.speechSynthesis.cancel();
+  activeUtterance=new SpeechSynthesisUtterance(text);
+  const voice=chooseEnglishVoice();
+  activeUtterance.lang="en-US";
+  if(voice)activeUtterance.voice=voice;
+  activeUtterance.rate=rate;
+  activeUtterance.pitch=1;
+  activeUtterance.volume=1;
+  activeUtterance.onstart=()=>{
+   const label=voice?voice.name+" ("+voice.lang+")":"giọng English (US) mặc định";
+   info.textContent="Đang phát giọng đọc miễn phí: "+label;
+  };
+  activeUtterance.onend=()=>{
+   info.textContent=voice?"Giọng đọc miễn phí: "+voice.name:"Đã phát xong giọng English (US) mặc định.";
+   buttons.forEach(b=>b.disabled=false);
+  };
+  activeUtterance.onerror=e=>{
+   info.textContent="Không phát được giọng đọc của trình duyệt ("+(e.error||"lỗi không xác định")+"). Hãy thử tải lại trang hoặc chọn giọng English trong cài đặt thiết bị.";
+   buttons.forEach(b=>b.disabled=false);
+  };
+  info.textContent="Đang chuẩn bị giọng đọc English (US) miễn phí...";
+  window.speechSynthesis.speak(activeUtterance);
+ }catch(e){
+  info.textContent="Lỗi phát âm: "+e.message;
+  buttons.forEach(b=>b.disabled=false);
+ }
 }
 window.TOEIC_SPEAK=speak;
 function setRate(r){rate=+r;document.querySelectorAll("[data-rate]").forEach(b=>b.classList.toggle("active",+b.dataset.rate===rate))}
