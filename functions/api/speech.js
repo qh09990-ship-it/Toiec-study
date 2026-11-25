@@ -33,7 +33,7 @@ export async function onRequestPost({ request, env }) {
       },
       body: JSON.stringify({
         text,
-        model_id: env.ELEVENLABS_MODEL_ID || "eleven_v3",
+        model_id: env.ELEVENLABS_MODEL_ID || "eleven_v4",
         voice_settings: {
           stability: 0.42,
           similarity_boost: 0.82,
