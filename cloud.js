@@ -1,58 +1,124 @@
 (() => {
- const status=document.getElementById("account-status");
- const message=document.getElementById("account-message");
- const email=document.getElementById("account-email");
- const password=document.getElementById("account-password");
- const login=document.getElementById("account-login");
- const register=document.getElementById("account-register");
- const logout=document.getElementById("account-logout");
- const cfg=window.TOEIC_SUPABASE_CONFIG||{};
- const say=(title,detail)=>{if(status)status.textContent=title;if(message)message.textContent=detail};
- const signedIn=(yes)=>{login.classList.toggle("hidden",yes);register.classList.toggle("hidden",yes);logout.classList.toggle("hidden",!yes);email.classList.toggle("hidden",yes);password.classList.toggle("hidden",yes)};
- if(!cfg.url||!cfg.anonKey||!window.supabase){
-   say("Chưa kết nối tài khoản","Nút tạo tài khoản chưa thể hoạt động vì website chưa được nối với Supabase. Hãy thiết lập Supabase Free trước; dữ liệu học hiện vẫn lưu trên thiết bị này.");
-   if(register)register.addEventListener("click",()=>say("Cần kết nối Supabase trước","Tạo dự án Supabase miễn phí, sau đó thêm Project URL và anon/publishable key vào file config.js trên GitHub. Khi Cloudflare cập nhật website, nút này sẽ tạo tài khoản được."));
-   if(login)login.addEventListener("click",()=>say("Chưa có hệ thống đăng nhập","Hãy kết nối Supabase Free và tạo tài khoản trước khi đăng nhập."));
-   return;
- }
- const client=window.supabase.createClient(cfg.url,cfg.anonKey);
- let writeTimer=null;
- window.TOEIC_CLOUD_SAVE=(payload)=>{
-   if(writeTimer)clearTimeout(writeTimer);
-   writeTimer=setTimeout(async()=>{
-     const {data:{user}}=await client.auth.getUser();
-     if(!user)return;
-     const {error}=await client.from("learning_data").upsert({user_id:user.id,payload,updated_at:new Date().toISOString()},{onConflict:"user_id"});
-     if(error)say("Chưa đồng bộ được",error.message);
-     else say("Đã đồng bộ tài khoản", "Tiến độ học của bạn đã được lưu trên tài khoản.");
-   },900);
- };
- async function loadUser(user){
-   if(!user){signedIn(false);say("Chưa đăng nhập","Tiến độ đang lưu trên thiết bị này. Đăng nhập để đồng bộ khi đã cấu hình Supabase.");return}
-   signedIn(true);say("Đang tải dữ liệu…",user.email||"Tài khoản đã đăng nhập");
-   const {data:row,error}=await client.from("learning_data").select("payload").eq("user_id",user.id).maybeSingle();
-   if(error){say("Lỗi tải dữ liệu",error.message);return}
-   if(row&&row.payload){window.ToeicStudy.setData(row.payload);say("Đã đồng bộ tài khoản","Tiến độ và sổ từ vựng đã được tải về thiết bị này.")}
-   else {window.TOEIC_CLOUD_SAVE(window.ToeicStudy.getData());say("Đã tạo dữ liệu học","Dữ liệu trên thiết bị này được lưu vào tài khoản.")}
- }
- login.addEventListener("click",async()=>{
-   const e=email.value.trim(),p=password.value;
-   if(!e||!p){say("Thiếu thông tin","Hãy nhập email và mật khẩu.");return}
-   say("Đang đăng nhập…","Đang xác minh tài khoản.");
-   const {data,error}=await client.auth.signInWithPassword({email:e,password:p});
-   if(error){say("Đăng nhập chưa thành công",error.message);return}
-   await loadUser(data.user);
- });
- register.addEventListener("click",async()=>{
-   const e=email.value.trim(),p=password.value;
-   if(!e||p.length<6){say("Kiểm tra thông tin","Nhập email hợp lệ và mật khẩu tối thiểu 6 ký tự.");return}
-   say("Đang tạo tài khoản…","Kiểm tra email nếu Supabase yêu cầu xác nhận.");
-   const {data,error}=await client.auth.signUp({email:e,password:p});
-   if(error){say("Không tạo được tài khoản",error.message);return}
-   if(data.session)await loadUser(data.user);
-   else say("Hãy xác nhận email","Mở hộp thư của bạn và bấm liên kết xác nhận, sau đó quay lại đăng nhập.");
- });
- logout.addEventListener("click",async()=>{await client.auth.signOut();signedIn(false);say("Đã đăng xuất","Bạn có thể tiếp tục học; tiến độ cục bộ vẫn còn trên thiết bị này.")});
- client.auth.onAuthStateChange((_event,session)=>{if(session?.user)loadUser(session.user);else signedIn(false)});
- client.auth.getSession().then(({data})=>{if(data.session?.user)loadUser(data.session.user);else signedIn(false)});
+  const $ = id => document.getElementById(id);
+  const status = $("account-status"), message = $("account-message");
+  const email = $("account-email"), password = $("account-password");
+  const login = $("account-login"), register = $("account-register"), logout = $("account-logout");
+  const cfg = window.TOEIC_SUPABASE_CONFIG || {};
+  const say = (title, detail) => {
+    if (status) status.textContent = title;
+    if (message) message.textContent = detail || "";
+  };
+  const signedIn = yes => {
+    [login, register].forEach(el => { if (el) el.classList.toggle("hide", yes); });
+    [email, password].forEach(el => { if (el) el.classList.toggle("hide", yes); });
+    if (logout) logout.classList.toggle("hide", !yes);
+  };
+  if (!cfg.url || !cfg.anonKey || !window.supabase || !login || !register || !logout) {
+    say("Chưa kết nối được tài khoản", "Kiểm tra cấu hình Supabase và tải lại trang. Tiến độ hiện tại vẫn được lưu trên thiết bị.");
+    return;
+  }
+
+  const client = window.supabase.createClient(cfg.url, cfg.anonKey);
+  const META = "toeicStudy_sync_updated_at";
+  const isStudyKey = key => key.startsWith("toeicStudy_") || key === "toeicStudy_v1";
+  const readLocal = () => {
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && isStudyKey(key)) data[key] = localStorage.getItem(key);
+    }
+    return data;
+  };
+  const applyLocal = storage => {
+    Object.keys(localStorage).forEach(key => { if (isStudyKey(key)) localStorage.removeItem(key); });
+    Object.entries(storage || {}).forEach(([key, value]) => {
+      if (isStudyKey(key) && typeof value === "string") localStorage.setItem(key, value);
+    });
+  };
+
+  let timer = null, activeUser = null, loading = false;
+  const saveNow = async () => {
+    if (!activeUser || loading) return;
+    const updatedAt = new Date().toISOString();
+    const payload = { storage: readLocal(), updatedAt };
+    const { error } = await client.from("learning_data").upsert(
+      { user_id: activeUser.id, payload, updated_at: updatedAt },
+      { onConflict: "user_id" }
+    );
+    if (error) say("Chưa đồng bộ được", error.message);
+    else {
+      localStorage.setItem(META, updatedAt);
+      say("Đã đồng bộ tài khoản", "Tiến độ học đã được lưu. Bạn có thể đăng nhập tài khoản này trên thiết bị khác.");
+    }
+  };
+  window.TOEIC_CLOUD_SAVE = () => {
+    if (!activeUser) return;
+    clearTimeout(timer);
+    timer = setTimeout(saveNow, 800);
+  };
+
+  async function loadUser(user) {
+    if (!user) {
+      activeUser = null; signedIn(false);
+      say("Chưa đăng nhập", "Tiến độ vẫn lưu trên thiết bị này. Đăng nhập cùng tài khoản trên các thiết bị để đồng bộ.");
+      return;
+    }
+    if (activeUser?.id === user.id && loading) return;
+    activeUser = user; loading = true; signedIn(true);
+    say("Đang đồng bộ dữ liệu…", user.email || "Tài khoản đã đăng nhập");
+    try {
+      const { data: row, error } = await client.from("learning_data")
+        .select("payload,updated_at").eq("user_id", user.id).maybeSingle();
+      if (error) throw error;
+      const local = readLocal();
+      const localTime = Date.parse(localStorage.getItem(META) || "1970-01-01T00:00:00Z");
+      const remote = row?.payload?.storage;
+      const remoteTime = Date.parse(row?.payload?.updatedAt || row?.updated_at || "1970-01-01T00:00:00Z");
+      if (remote && remoteTime > localTime) {
+        applyLocal(remote);
+        localStorage.setItem(META, new Date(remoteTime).toISOString());
+        say("Đã tải tiến độ từ tài khoản", "Dữ liệu học trên thiết bị này đã được cập nhật theo bản đồng bộ mới nhất.");
+      } else if (Object.keys(local).length || remote) {
+        await saveNow();
+      } else {
+        await saveNow();
+      }
+    } catch (error) {
+      say("Lỗi đồng bộ", error.message || "Không thể tải dữ liệu tài khoản.");
+    } finally {
+      loading = false;
+    }
+  }
+
+  login.addEventListener("click", async () => {
+    const e = email.value.trim(), p = password.value;
+    if (!e || !p) return say("Thiếu thông tin", "Hãy nhập email và mật khẩu.");
+    say("Đang đăng nhập…", "Đang xác minh tài khoản.");
+    const { data, error } = await client.auth.signInWithPassword({ email: e, password: p });
+    if (error) return say("Đăng nhập chưa thành công", error.message);
+    await loadUser(data.user);
+  });
+  register.addEventListener("click", async () => {
+    const e = email.value.trim(), p = password.value;
+    if (!e || p.length < 6) return say("Kiểm tra thông tin", "Nhập email hợp lệ và mật khẩu tối thiểu 6 ký tự.");
+    say("Đang tạo tài khoản…", "Kiểm tra email nếu hệ thống yêu cầu xác nhận.");
+    const { data, error } = await client.auth.signUp({ email: e, password: p });
+    if (error) return say("Không tạo được tài khoản", error.message);
+    if (data.session && data.user) await loadUser(data.user);
+    else say("Hãy xác nhận email", "Mở hộp thư, bấm liên kết xác nhận rồi quay lại đăng nhập.");
+  });
+  logout.addEventListener("click", async () => {
+    await client.auth.signOut();
+    activeUser = null; signedIn(false);
+    say("Đã đăng xuất", "Tiến độ cục bộ vẫn còn trên thiết bị này.");
+  });
+  client.auth.onAuthStateChange((_event, session) => {
+    if (session?.user) loadUser(session.user);
+    else { activeUser = null; signedIn(false); }
+  });
+  client.auth.getSession().then(({ data, error }) => {
+    if (error) say("Không kiểm tra được phiên đăng nhập", error.message);
+    else if (data.session?.user) loadUser(data.session.user);
+    else { signedIn(false); say("Chưa đăng nhập", "Đăng nhập cùng tài khoản trên máy tính và điện thoại để đồng bộ."); }
+  });
 })();
